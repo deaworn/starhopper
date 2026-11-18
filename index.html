@@ -170,6 +170,9 @@
   function drawParticles(){for(const p of state.particles){ctx.globalAlpha=clamp(p.life/p.max,0,1);glow(p.color,8);ctx.fillStyle=p.color;ctx.fillRect(p.x-p.size/2,p.y-p.size/2,p.size,p.size);}ctx.globalAlpha=1;ctx.shadowBlur=0;}
   function loop(now){if(!run)return;const dt=Math.min(.033,(now-last)/1000||.016);last=now;update(dt);draw();requestAnimationFrame(loop);}
   makeStars();draw();
+  // Read-only test hook for the QA bot, only with ?bot in the URL. It exposes the
+  // state for reading; nothing in the game logic depends on it.
+  if (/[?&]bot\b/.test(location.search)) window.__starhopper = { state, ship, levels, get run() { return run; } };
 })();
 </script>
 </body>
