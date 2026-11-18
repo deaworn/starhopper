@@ -38,6 +38,16 @@
     .shop-actions .shield { background:linear-gradient(135deg,#89ffd0,#54dfae); }
     .shop-actions .skip { background:#25496e; color:#d5edff; min-width:112px; }
     .small { margin-top:18px; color:#79a9c9; font-size:12px; letter-spacing:.04em; }
+    /* short landscape phones (e.g. 830x289 visible): compact panels so the buttons stay on screen */
+    @media (max-height: 480px) {
+      #panel { padding:12px 18px; border-radius:16px; }
+      h1 { font-size:clamp(22px,7vh,40px); }
+      h1 em { margin:.35em 0 .6em; }
+      #message { font-size:12px; line-height:1.35; margin-bottom:10px; }
+      button { padding:9px 20px; font-size:13px; }
+      .shop-actions button { min-width:140px; padding:9px 12px; font-size:11px; }
+      .small { display:none; }
+    }
     #rotate { display:none; position:fixed; inset:0; z-index:9; place-items:center; text-align:center; padding:24px; background:#030817f2; color:#b8f9ff; font-weight:900; letter-spacing:.14em; font-size:16px; line-height:1.7; }
     #rotate b { display:block; font-size:44px; color:#ff78c5; letter-spacing:0; margin-bottom:10px; }
     @media (orientation: portrait) and (pointer: coarse) { #rotate { display:grid; } }
