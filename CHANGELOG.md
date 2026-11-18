@@ -13,3 +13,4 @@
 - Sector end: waits until the dropped credits are collected or have flown off (they were lost when the shop opened).
 - Added an inline icon (the missing favicon caused a 404 error in the console).
 - Short landscape phones: compact start/shop/end panels, the buttons are no longer cut off.
+- Chrome no longer offers to translate the page (the Hungarian game texts stay as they are).
