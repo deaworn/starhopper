@@ -9,3 +9,4 @@
 - Phone held upright: a "turn the phone" hint instead of a tiny strip-sized playfield.
 - Laser emitter: shots now hit the emitter where it is drawn (it bobs up and down; the hit point stayed at its start height).
 - Boss: flying into the Overlord now costs a shield like any other hit (it could be passed through).
+- Boss health bar: starts full again on a new run (it stayed empty after a win).
