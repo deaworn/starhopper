@@ -8,3 +8,4 @@
 - Touch steering: the browser no longer takes over a finger drag (pan / pull-to-refresh), so the ship keeps following the finger.
 - Phone held upright: a "turn the phone" hint instead of a tiny strip-sized playfield.
 - Laser emitter: shots now hit the emitter where it is drawn (it bobs up and down; the hit point stayed at its start height).
+- Boss: flying into the Overlord now costs a shield like any other hit (it could be passed through).
