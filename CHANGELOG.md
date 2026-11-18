@@ -10,3 +10,4 @@
 - Laser emitter: shots now hit the emitter where it is drawn (it bobs up and down; the hit point stayed at its start height).
 - Boss: flying into the Overlord now costs a shield like any other hit (it could be passed through).
 - Boss health bar: starts full again on a new run (it stayed empty after a win).
+- Sector end: waits until the dropped credits are collected or have flown off (they were lost when the shop opened).

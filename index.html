@@ -134,7 +134,7 @@
     updateObstacles(dt);
     for(const p of state.pickups){p.x-=p.vx*dt;p.t+=dt;p.life-=dt;if(Math.hypot(p.x-ship.x,p.y-ship.y)<p.r+ship.r+4)collectPickup(p);}state.pickups=state.pickups.filter(p=>!p.dead&&p.life>0&&p.x>-40);
     for(const c of state.coins){c.x-=c.vx*dt;c.t+=dt;c.life-=dt;if(Math.hypot(c.x-ship.x,c.y-ship.y)<c.r+ship.r+5){c.dead=true;state.credits++;state.score+=20;burst(c.x,c.y,'#ffd76a',10,130);tone(660,'sine',.025,100);syncUi();}}state.coins=state.coins.filter(c=>!c.dead&&c.life>0&&c.x>-35);
-    if(!state.boss&&state.spawned>=state.target&&state.enemies.length===0&&state.levelTime>5)openShop();
+    if(!state.boss&&state.spawned>=state.target&&state.enemies.length===0&&state.coins.length===0&&state.levelTime>5)openShop();
   }
   function updateBoss(b,dt){b.t+=dt;b.x+=(790-b.x)*dt*.72;b.y=H/2+Math.sin(b.t*.95)*170;if(Math.hypot(ship.x-b.x,ship.y-b.y)<88+ship.r)hurt();b.fire-=dt;b.spawn-=dt;if(b.fire<=0){bossFire(b);b.fire=b.hp<85?.72:1.15;}if(b.spawn<=0){const k=enemyKinds[Math.min(4,1+Math.floor(Math.random()*4))];state.enemies.push({x:b.x-65,y:b.y+rng(-80,80),baseY:0,vx:120,t:0,kind:k,hp:k.hp,maxHp:k.hp,shoot:1.2,phase:0,dead:false});b.spawn=3.5;}
     for(const s of state.shots)if(s.life>0&&Math.hypot(s.x-b.x,s.y-b.y)<93+s.r){s.life=0;b.hp-=s.damage||1;burst(s.x,s.y,'#ff94d6',3,55);ui.bossFill.style.width=`${100*b.hp/b.maxHp}%`;if(b.hp<=0){kill({x:b.x,y:b.y,kind:null,dead:false});end(true);}}
