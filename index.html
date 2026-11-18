@@ -37,11 +37,15 @@
     .shop-actions .shield { background:linear-gradient(135deg,#89ffd0,#54dfae); }
     .shop-actions .skip { background:#25496e; color:#d5edff; min-width:112px; }
     .small { margin-top:18px; color:#79a9c9; font-size:12px; letter-spacing:.04em; }
+    #rotate { display:none; position:fixed; inset:0; z-index:9; place-items:center; text-align:center; padding:24px; background:#030817f2; color:#b8f9ff; font-weight:900; letter-spacing:.14em; font-size:16px; line-height:1.7; }
+    #rotate b { display:block; font-size:44px; color:#ff78c5; letter-spacing:0; margin-bottom:10px; }
+    @media (orientation: portrait) and (pointer: coarse) { #rotate { display:grid; } }
     #toast { pointer-events:none; position:absolute; top:28%; left:50%; transform:translate(-50%,-50%); font-weight:1000; letter-spacing:.2em; font-size:clamp(18px,3.2vw,38px); text-align:center; color:#fff; opacity:0; transition:opacity .2s; text-shadow:0 0 16px #5cf0ff, 0 3px 4px #000; }
     #toast span { display:block; font-size:.45em; color:#8eeeff; margin-top:.55em; letter-spacing:.14em; }
   </style>
 </head>
 <body>
+<div id="rotate"><div><b>⟲</b>FORDÍTSD EL A TELEFONT<br>FEKVŐ NÉZETBEN JÁTSZHATÓ</div></div>
 <main id="shell">
   <canvas id="game" aria-label="Starhopper Invader Run"></canvas>
   <section id="hud"><div class="card"><span class="label">PONTSZÁM</span><span class="value" id="score">000000</span><div id="credits">✦ 0 CR</div></div><div><div id="sector">SZEKTOR 01 / 10</div><div id="weapon">F-1 // ALAP PLASMA</div></div><div class="card" id="life"><span class="label">PAJZS</span><div id="hearts">● ● ●</div></div></section>
