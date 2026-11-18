@@ -1,16 +1,7 @@
 # Changelog
 
-## Original
-- The game as received (single index.html).
+## Original (live)
+- The game as received (single index.html), unchanged.
 
-## Fixes (QA round 2026-11-18)
-- Phone landscape: the playfield no longer overflows the screen height (the bottom ~20% was cut off on a 915x412 phone).
-- Touch steering: the browser no longer takes over a finger drag (pan / pull-to-refresh), so the ship keeps following the finger.
-- Phone held upright: a "turn the phone" hint instead of a tiny strip-sized playfield.
-- Laser emitter: shots now hit the emitter where it is drawn (it bobs up and down; the hit point stayed at its start height).
-- Boss: flying into the Overlord now costs a shield like any other hit (it could be passed through).
-- Boss health bar: starts full again on a new run (it stayed empty after a win).
-- Sector end: waits until the dropped credits are collected or have flown off (they were lost when the shop opened).
-- Added an inline icon (the missing favicon caused a 404 error in the console).
-- Short landscape phones: compact start/shop/end panels, the buttons are no longer cut off.
-- Chrome no longer offers to translate the page (the Hungarian game texts stay as they are).
+## Proposed fixes (branch `qa-fixes`, NOT live)
+QA-round fixes are kept on the `qa-fixes` branch until they are approved (plan + reference images first).

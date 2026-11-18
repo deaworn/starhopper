@@ -1,19 +1,15 @@
 <!doctype html>
-<html lang="hu" translate="no">
+<html lang="hu">
 <head>
   <meta charset="utf-8">
-  <meta name="google" content="notranslate">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Starhopper: Invader Run</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Cpath d=%22M6 32L40 10L60 32L40 54Z%22 fill=%22%2360edff%22/%3E%3C/svg%3E">
   <style>
     :root { color-scheme: dark; }
     * { box-sizing: border-box; }
-    html, body { overscroll-behavior:none; } /* no pull-to-refresh while steering */
-    body { margin:0; min-height:100vh; min-height:100dvh; display:grid; place-items:center; overflow:hidden; background:#030817; font-family:Inter,system-ui,Arial,sans-serif; color:#effcff; }
-    /* fits the screen both ways: never wider than 16:9 of the visible height (landscape phones cropped the bottom) */
-    #shell { width:min(100vw,1120px,calc(100vh * 16 / 9)); width:min(100vw,1120px,calc(100dvh * 16 / 9)); aspect-ratio:16/9; position:relative; background:#07152d; overflow:hidden; box-shadow:0 0 70px #35dfff33, inset 0 0 40px #000; }
-    canvas { display:block; width:100%; height:100%; cursor:crosshair; touch-action:none; }
+    body { margin:0; min-height:100vh; display:grid; place-items:center; overflow:hidden; background:#030817; font-family:Inter,system-ui,Arial,sans-serif; color:#effcff; }
+    #shell { width:min(100vw,1120px); aspect-ratio:16/9; position:relative; background:#07152d; overflow:hidden; box-shadow:0 0 70px #35dfff33, inset 0 0 40px #000; }
+    canvas { display:block; width:100%; height:100%; cursor:crosshair; touch-action:manipulation; }
     #hud { pointer-events:none; position:absolute; inset:0; padding:clamp(12px,2.1vw,25px); display:grid; grid-template-columns:1fr auto 1fr; align-items:start; text-shadow:0 2px 8px #000; }
     .card { background:#071a35bb; border:1px solid #53e9ff88; border-radius:12px; padding:8px 13px; box-shadow:inset 0 0 14px #38d8ff16; }
     .label { display:block; font-size:10px; color:#76f0ff; letter-spacing:.17em; font-weight:800; }
@@ -39,25 +35,12 @@
     .shop-actions .shield { background:linear-gradient(135deg,#89ffd0,#54dfae); }
     .shop-actions .skip { background:#25496e; color:#d5edff; min-width:112px; }
     .small { margin-top:18px; color:#79a9c9; font-size:12px; letter-spacing:.04em; }
-    /* short landscape phones (e.g. 830x289 visible): compact panels so the buttons stay on screen */
-    @media (max-height: 480px) {
-      #panel { padding:12px 18px; border-radius:16px; }
-      h1 { font-size:clamp(22px,7vh,40px); }
-      h1 em { margin:.35em 0 .6em; }
-      #message { font-size:12px; line-height:1.35; margin-bottom:10px; }
-      button { padding:9px 20px; font-size:13px; }
-      .shop-actions button { min-width:140px; padding:9px 12px; font-size:11px; }
-      .small { display:none; }
-    }
-    #rotate { display:none; position:fixed; inset:0; z-index:9; place-items:center; text-align:center; padding:24px; background:#030817f2; color:#b8f9ff; font-weight:900; letter-spacing:.14em; font-size:16px; line-height:1.7; }
-    #rotate b { display:block; font-size:44px; color:#ff78c5; letter-spacing:0; margin-bottom:10px; }
-    @media (orientation: portrait) and (pointer: coarse) { #rotate { display:grid; } }
     #toast { pointer-events:none; position:absolute; top:28%; left:50%; transform:translate(-50%,-50%); font-weight:1000; letter-spacing:.2em; font-size:clamp(18px,3.2vw,38px); text-align:center; color:#fff; opacity:0; transition:opacity .2s; text-shadow:0 0 16px #5cf0ff, 0 3px 4px #000; }
     #toast span { display:block; font-size:.45em; color:#8eeeff; margin-top:.55em; letter-spacing:.14em; }
+    @media (max-aspect-ratio: 16/9) { #shell { width:100vw; } }
   </style>
 </head>
 <body>
-<div id="rotate"><div><b>⟲</b>FORDÍTSD EL A TELEFONT<br>FEKVŐ NÉZETBEN JÁTSZHATÓ</div></div>
 <main id="shell">
   <canvas id="game" aria-label="Starhopper Invader Run"></canvas>
   <section id="hud"><div class="card"><span class="label">PONTSZÁM</span><span class="value" id="score">000000</span><div id="credits">✦ 0 CR</div></div><div><div id="sector">SZEKTOR 01 / 10</div><div id="weapon">F-1 // ALAP PLASMA</div></div><div class="card" id="life"><span class="label">PAJZS</span><div id="hearts">● ● ●</div></div></section>
@@ -121,7 +104,7 @@
   function damageObstacle(o){if(o.dead)return;o.hp--;o.flash=.14;const y=o.type==='gate'?o.cy:o.y;burst(o.x,y,o.type==='meteor'?'#ffab76':'#9bf8ff',5,90);if(o.hp<=0)breakObstacle(o);}
   function damageBlockCell(o,index){if(o.dead||!o.cells[index])return;o.cells[index]=false;o.remaining--;o.flash=.11;const col=index%o.cols,row=Math.floor(index/o.cols),cell=o.size/o.cols;const x=o.x-o.size/2+cell*(col+.5),y=o.y-o.size/2+cell*(row+.5);state.score+=12;burst(x,y,'#74efff',10,145);tone(330,'square',.018,-110);syncUi();if(o.remaining<=0)breakObstacle(o);}
   function blockCellAtShot(o,s){const cell=o.size/o.cols,left=o.x-o.size/2,top=o.y-o.size/2,col=Math.floor((s.x-left)/cell),row=Math.floor((s.y-top)/cell);if(col<0||col>=o.cols||row<0||row>=o.rows)return -1;const index=row*o.cols+col;return o.cells[index]?index:-1;}
-  function startBoss(){state.enemies=[];state.obstacles=[];state.boss={x:W+150,y:H/2,hp:180,maxHp:180,t:0,fire:1.2,spawn:3.3,phase:0};ui.boss.style.display='block';ui.bossFill.style.width='100%';showToast('VÉGSŐ SZEK­TOR','OVERLORD K-9 ÉRKEZIK',2.3);}
+  function startBoss(){state.enemies=[];state.obstacles=[];state.boss={x:W+150,y:H/2,hp:180,maxHp:180,t:0,fire:1.2,spawn:3.3,phase:0};ui.boss.style.display='block';showToast('VÉGSŐ SZEK­TOR','OVERLORD K-9 ÉRKEZIK',2.3);}
   function nextLevel(){state.level++;state.levelTime=0;state.spawned=0;state.enemies=[];state.obstacles=[];state.enemyShots=[];state.target=levels[state.level-1][1];state.nextSpawn=.65;state.nextObstacle=1.1;state.invincible=1.15;syncUi();if(state.level===10){startBoss();}else showToast(`SZEK­TOR ${String(state.level).padStart(2,'0')}`,levels[state.level-1][0]);}
   function resumeAfterShop(){ui.overlay.style.display='none';nextLevel();run=true;last=performance.now();requestAnimationFrame(loop);}
   function buySectorUpgrade(type){const cost=type==='weapon'?5:4;if(state.credits<cost){showToast('NINCS ELÉG KRÉDIT','GYŰJTS MÉG AZ INVADEREKBŐL',1.35);return;}state.credits-=cost;if(type==='weapon'){state.weapon.damage++;showToast('FÉNYLÖVEDÉK TUNING','SÉRÜLÉS +1',1.15);}else{state.maxLives=Math.min(6,state.maxLives+1);state.lives=state.maxLives;showToast('PAJZSMAG BŐVÍTVE','MAX PAJZS +1',1.15);}syncUi();resumeAfterShop();}
@@ -141,14 +124,14 @@
     for(const s of state.enemyShots)if(s.life>0&&Math.hypot(s.x-ship.x,s.y-ship.y)<s.r+ship.r){s.life=0;hurt();}state.enemyShots=state.enemyShots.filter(s=>s.life>0);
     for(const e of state.enemies){e.t+=dt;e.x-=e.vx*dt;e.shoot-=dt;let dy=0;if(e.kind.behavior===0)dy=Math.sin(e.t*3+e.phase)*35;if(e.kind.behavior===1)dy=Math.sin(e.t*5+e.phase)*75;if(e.kind.behavior===2){dy=Math.sin(e.t*2)*45;if(e.x<890)e.y+=(ship.y-e.y)*dt*.75;}if(e.kind.behavior===3)dy=Math.sin(e.t*2)*22;if(e.kind.behavior===4)dy=Math.sin(e.t*4)*100;e.y+=dy*dt;if(e.shoot<=0&&e.x<1100){enemyFire(e);e.shoot=rng(1.25,2.5);}if(dist(e,ship)<e.kind.r+ship.r){e.dead=true;hurt();} }
     for(const s of state.shots){if(s.life<=0)continue;for(const e of state.enemies)if(!e.dead&&Math.hypot(s.x-e.x,s.y-e.y)<e.kind.r+s.r){s.life=0;e.hp-=s.damage||1;burst(s.x,s.y,e.kind.color,4,70);if(e.hp<=0)kill(e);break;}}
-    for(const s of state.shots){if(s.life<=0)continue;for(const o of state.obstacles){if(o.dead)continue;let hit=false,blockCell=-1;if(o.type==='gate'){const top=o.cy-o.gap/2,bottom=o.cy+o.gap/2;hit=s.x>=o.x-4&&s.x<=o.x+o.w+4&&(s.y<top||s.y>bottom);}else if(o.type==='meteor')hit=Math.hypot(s.x-o.x,s.y-o.y)<o.r+s.r;else if(o.type==='laser'){const yy=o.y+Math.sin(state.elapsed*2+o.phase)*38;hit=Math.hypot(s.x-o.x,s.y-yy)<20+s.r;}else if(o.type==='sweep'){const yy=o.y+Math.sin(state.elapsed*2+o.phase)*o.swing;hit=Math.hypot(s.x-o.x,s.y-yy)<o.r+s.r;}else if(o.type==='block'){blockCell=blockCellAtShot(o,s);hit=blockCell>=0;}if(hit){s.life=0;if(o.type==='block')damageBlockCell(o,blockCell);else damageObstacle(o);break;}}}
+    for(const s of state.shots){if(s.life<=0)continue;for(const o of state.obstacles){if(o.dead)continue;let hit=false,blockCell=-1;if(o.type==='gate'){const top=o.cy-o.gap/2,bottom=o.cy+o.gap/2;hit=s.x>=o.x-4&&s.x<=o.x+o.w+4&&(s.y<top||s.y>bottom);}else if(o.type==='meteor')hit=Math.hypot(s.x-o.x,s.y-o.y)<o.r+s.r;else if(o.type==='laser')hit=Math.hypot(s.x-o.x,s.y-o.y)<20+s.r;else if(o.type==='sweep'){const yy=o.y+Math.sin(state.elapsed*2+o.phase)*o.swing;hit=Math.hypot(s.x-o.x,s.y-yy)<o.r+s.r;}else if(o.type==='block'){blockCell=blockCellAtShot(o,s);hit=blockCell>=0;}if(hit){s.life=0;if(o.type==='block')damageBlockCell(o,blockCell);else damageObstacle(o);break;}}}
     state.enemies=state.enemies.filter(e=>!e.dead&&e.x>-80);
     updateObstacles(dt);
     for(const p of state.pickups){p.x-=p.vx*dt;p.t+=dt;p.life-=dt;if(Math.hypot(p.x-ship.x,p.y-ship.y)<p.r+ship.r+4)collectPickup(p);}state.pickups=state.pickups.filter(p=>!p.dead&&p.life>0&&p.x>-40);
     for(const c of state.coins){c.x-=c.vx*dt;c.t+=dt;c.life-=dt;if(Math.hypot(c.x-ship.x,c.y-ship.y)<c.r+ship.r+5){c.dead=true;state.credits++;state.score+=20;burst(c.x,c.y,'#ffd76a',10,130);tone(660,'sine',.025,100);syncUi();}}state.coins=state.coins.filter(c=>!c.dead&&c.life>0&&c.x>-35);
-    if(!state.boss&&state.spawned>=state.target&&state.enemies.length===0&&state.coins.length===0&&state.levelTime>5)openShop();
+    if(!state.boss&&state.spawned>=state.target&&state.enemies.length===0&&state.levelTime>5)openShop();
   }
-  function updateBoss(b,dt){b.t+=dt;b.x+=(790-b.x)*dt*.72;b.y=H/2+Math.sin(b.t*.95)*170;if(Math.hypot(ship.x-b.x,ship.y-b.y)<88+ship.r)hurt();b.fire-=dt;b.spawn-=dt;if(b.fire<=0){bossFire(b);b.fire=b.hp<85?.72:1.15;}if(b.spawn<=0){const k=enemyKinds[Math.min(4,1+Math.floor(Math.random()*4))];state.enemies.push({x:b.x-65,y:b.y+rng(-80,80),baseY:0,vx:120,t:0,kind:k,hp:k.hp,maxHp:k.hp,shoot:1.2,phase:0,dead:false});b.spawn=3.5;}
+  function updateBoss(b,dt){b.t+=dt;b.x+=(790-b.x)*dt*.72;b.y=H/2+Math.sin(b.t*.95)*170;b.fire-=dt;b.spawn-=dt;if(b.fire<=0){bossFire(b);b.fire=b.hp<85?.72:1.15;}if(b.spawn<=0){const k=enemyKinds[Math.min(4,1+Math.floor(Math.random()*4))];state.enemies.push({x:b.x-65,y:b.y+rng(-80,80),baseY:0,vx:120,t:0,kind:k,hp:k.hp,maxHp:k.hp,shoot:1.2,phase:0,dead:false});b.spawn=3.5;}
     for(const s of state.shots)if(s.life>0&&Math.hypot(s.x-b.x,s.y-b.y)<93+s.r){s.life=0;b.hp-=s.damage||1;burst(s.x,s.y,'#ff94d6',3,55);ui.bossFill.style.width=`${100*b.hp/b.maxHp}%`;if(b.hp<=0){kill({x:b.x,y:b.y,kind:null,dead:false});end(true);}}
   }
   function updateObstacles(dt){for(const o of state.obstacles){o.x-=o.speed*dt;o.flash=Math.max(0,o.flash-dt);if(o.dead)continue;if(o.type==='meteor'){o.a+=o.spin*dt;if(Math.hypot(ship.x-o.x,ship.y-o.y)<ship.r+o.r)hurt();}else if(o.type==='gate'){const top=o.cy-o.gap/2,bottom=o.cy+o.gap/2;if(ship.x+ship.r>o.x&&ship.x-ship.r<o.x+o.w&&(ship.y-ship.r<top||ship.y+ship.r>bottom))hurt();}else if(o.type==='laser'){o.warn-=dt;const yy=o.y+Math.sin(state.elapsed*2+o.phase)*38;if(o.warn<0&&ship.x+ship.r>o.x&&ship.x-ship.r<o.x+o.len&&Math.abs(ship.y-yy)<ship.r+6)hurt();}else if(o.type==='sweep'){const yy=o.y+Math.sin(state.elapsed*2+o.phase)*o.swing;if(Math.hypot(ship.x-o.x,ship.y-yy)<ship.r+o.r)hurt();}else if(o.type==='block'){const cell=o.size/o.cols,left=o.x-o.size/2,top=o.y-o.size/2;for(let i=0;i<o.cells.length;i++)if(o.cells[i]){const col=i%o.cols,row=Math.floor(i/o.cols),cx=left+col*cell,cy=top+row*cell;if(ship.x+ship.r>cx&&ship.x-ship.r<cx+cell&&ship.y+ship.r>cy&&ship.y-ship.r<cy+cell){hurt();break;}}}}state.obstacles=state.obstacles.filter(o=>!o.dead&&o.x>-350);}
@@ -187,9 +170,6 @@
   function drawParticles(){for(const p of state.particles){ctx.globalAlpha=clamp(p.life/p.max,0,1);glow(p.color,8);ctx.fillStyle=p.color;ctx.fillRect(p.x-p.size/2,p.y-p.size/2,p.size,p.size);}ctx.globalAlpha=1;ctx.shadowBlur=0;}
   function loop(now){if(!run)return;const dt=Math.min(.033,(now-last)/1000||.016);last=now;update(dt);draw();requestAnimationFrame(loop);}
   makeStars();draw();
-  // Read-only test hook for the QA bot, only with ?bot in the URL. It exposes the
-  // state for reading; nothing in the game logic depends on it.
-  if (/[?&]bot\b/.test(location.search)) window.__starhopper = { state, ship, levels, get run() { return run; } };
 })();
 </script>
 </body>
